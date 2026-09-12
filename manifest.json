@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "Command Bar for Manager.io",
+  "version": "1.0.0",
+  "description": "Keyboard-first command bar for Manager.io: search any page and navigate via short aliases without touching the mouse.",
+  "content_scripts": [
+    {
+      "matches": [
+        "http://localhost:55667/*",
+        "http://127.0.0.1:55667/*"
+      ],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}
