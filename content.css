@@ -28,7 +28,7 @@
   border-bottom: 1px solid var(--mgcmd-border);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-size: 13px;
-  line-height: 1;
+  line-height: 1.3;
 }
 
 #mgcmd-prompt {

@@ -1,24 +1,50 @@
 (() => {
+  // Store relative paths instead of hardcoded hostnames and business keys
   const ALIASES = {
-    h: { url: '127.0.0.1:55667/summary-view?ogYTRmF6YWwgRmVlZHMgTWl4aW5nIA', label: 'Summary' },
-    a: { url: '127.0.0.1:55667/bank-and-cash-accounts?ogYTRmF6YWwgRmVlZHMgTWl4aW5nILgMAMAMALgNAMANAOgNANAPAKgQALgQAMgQAPAQAMARAMgRAJASAPD7AQA', label: 'Bank and Cash Accounts' },
-    r: { url: '127.0.0.1:55667/receipts?ogYTRmF6YWwgRmVlZHMgTWl4aW5nILgMAMAMALgNAMANAOgNANAPAKgQALgQAMgQAPAQAMARAMgRAJASAPD7AQA', label: 'Receipts' },
-    p: { url: '127.0.0.1:55667/payments?ogYTRmF6YWwgRmVlZHMgTWl4aW5nILgMAMAMALgNAMANAOgNANAPAKgQALgQAMgQAPAQAMARAMgRAJASAPD7AQA', label: 'Payments' },
-    ia: { url: '127.0.0.1:55667/inter-account-transfers?ogYTRmF6YWwgRmVlZHMgTWl4aW5nILgMAMAMALgNAMANAOgNANAPAKgQALgQAMgQAPAQAMARAMgRAJASAPD7AQA', label: 'Inter Account Transfers' },
-    c: { url: '127.0.0.1:55667/customers?ogYTRmF6YWwgRmVlZHMgTWl4aW5nILgMAMAMALgNAMANAOgNANAPAKgQALgQAMgQAPAQAMARAMgRAJASAPD7AQA', label: 'Customers' },
-    cs: { url: '127.0.0.1:55667/customer-statements-transactions-list?ogYTRmF6YWwgRmVlZHMgTWl4aW5nIKoGJy9yZXBvcnRzP29nWVRSbUY2WVd3Z1JtVmxaSE1nVFdsNGFXNW5JQQ', label: 'Customer Statements' },
-    si: { url: '127.0.0.1:55667/sales-invoices?ogYTRmF6YWwgRmVlZHMgTWl4aW5nILgMAMAMALgNAMANAOgNANAPAKgQALgQAMgQAPAQAMARAMgRAJASAPD7AQA', label: 'Sales Invoices' },
-    s: { url: '127.0.0.1:55667/suppliers?ogYTRmF6YWwgRmVlZHMgTWl4aW5nILgMAMAMALgNAMANAOgNANAPAKgQALgQAMgQAPAQAMARAMgRAJASAPD7AQA', label: 'Suppliers' },
-    ss: { url: '127.0.0.1:55667/suppliers?ogYTRmF6YWwgRmVlZHMgTWl4aW5nILgMAMAMALgNAMANAOgNANAPAKgQALgQAMgQAPAQAMARAMgRAJASAPD7AQA', label: 'Suppliers Statements' },    
-    pi: { url: '127.0.0.1:55667/purchase-invoices?ogYTRmF6YWwgRmVlZHMgTWl4aW5nILgMAMAMALgNAMANAOgNANAPAKgQALgQAMgQAPAQAMARAMgRAJASAPD7AQA', label: 'Purchase Invoices' },
-    ii: { url: '127.0.0.1:55667/inventory-items?ogYTRmF6YWwgRmVlZHMgTWl4aW5nILgMAMAMALgNAMANAOgNANAPAKgQALgQAMgQAPAQAMARAMgRAJASAPD7AQA', label: 'Inventory Items' },
-    em: { url: '127.0.0.1:55667/employees?ogYTRmF6YWwgRmVlZHMgTWl4aW5nILgMAMAMALgNAMANAOgNANAPAKgQALgQAMgQAPAQAMARAMgRAJASAPD7AQA', label: 'Employees' },
-    je: { url: '127.0.0.1:55667/journal-entries?ogYTRmF6YWwgRmVlZHMgTWl4aW5nILgMAMAMALgNAMANAOgNANAPAKgQALgQAMgQAPAQAMARAMgRAJASAPD7AQA', label: 'Journal Enteries' },
+    h:  { path: '/summary-view', label: 'Summary' },
+    a:  { path: '/bank-and-cash-accounts', label: 'Bank and Cash Accounts' },
+    r:  { path: '/receipts', label: 'Receipts' },
+    p:  { path: '/payments', label: 'Payments' },
+    ia: { path: '/inter-account-transfers', label: 'Inter Account Transfers' },
+    c:  { path: '/customers', label: 'Customers' },
+    cs: { path: '/customer-statements-transactions-list', label: 'Customer Statements' },
+    si: { path: '/sales-invoices', label: 'Sales Invoices' },
+    s:  { path: '/suppliers', label: 'Suppliers' },
+    ss: { path: '/supplier-statements-transactions-list', label: 'Suppliers Statements' },    
+    pi: { path: '/purchase-invoices', label: 'Purchase Invoices' },
+    ii: { path: '/inventory-items', label: 'Inventory Items' },
+    em: { path: '/employees', label: 'Employees' },
+    je: { path: '/journal-entries', label: 'Journal Entries' },
   };
 
   const TRUNCATE_LIMIT = 40;
   const EMPTY_HINT = 'Type to search · /alias to navigate';
   const PENDING_SEARCH_KEY = 'mgcmd:pendingSearch';
+
+  // Dynamically extract the business key from #tabSummary or current URL
+  const getBusinessQuery = () => {
+    const summaryTab = document.querySelector('#tabSummary');
+    if (summaryTab) {
+      const href = summaryTab.getAttribute('href');
+      if (href && href.includes('?')) return href.split('?')[1];
+    }
+    // Fallback: check any sidebar link with a query parameter
+    const sidebarLink = document.querySelector('#sidebar a[href*="?"]');
+    if (sidebarLink) {
+      return sidebarLink.getAttribute('href').split('?')[1];
+    }
+    // Final fallback to the active page query string
+    return window.location.search.replace(/^\?/, '');
+  };
+
+  // Construct absolute dynamic URL for an alias
+  const getUrlForAlias = (alias) => {
+    const entry = ALIASES[alias];
+    if (!entry) return '';
+    const bizQuery = getBusinessQuery();
+    const queryString = bizQuery ? `?${bizQuery}` : '';
+    return `${window.location.origin}${entry.path}${queryString}`;
+  };
 
   const parseNav = (value) => {
     const rest = value.slice(1).trim();
@@ -33,14 +59,6 @@
     document.querySelector('input[placeholder="Search"]');
 
   const hasSearchBar = Boolean(findSearchInput());
-
-  const toAbsoluteUrl = (url) => {
-    if (/^[a-z][a-z0-9+\-.]*:\/\//i.test(url)) return url;
-    if (/^[a-z0-9.-]+(?::\d+)?\//i.test(url)) {
-      return `${window.location.protocol}//${url}`;
-    }
-    return window.location.origin + url;
-  };
 
   const truncate = (text) =>
     text.length > TRUNCATE_LIMIT ? text.slice(0, TRUNCATE_LIMIT) + '…' : text;
@@ -77,7 +95,7 @@
       const entry = ALIASES[alias];
       if (entry) {
         if (term !== '') sessionStorage.setItem(PENDING_SEARCH_KEY, term);
-        window.location.href = toAbsoluteUrl(entry.url);
+        window.location.href = getUrlForAlias(alias);
       }
       return;
     }
@@ -136,8 +154,9 @@
 
       const tdLink = document.createElement('td');
       const link = document.createElement('a');
-      link.href = toAbsoluteUrl(entry.url);
-      link.textContent = entry.url;
+      const targetUrl = getUrlForAlias(alias);
+      link.href = targetUrl;
+      link.textContent = targetUrl;
       tdLink.appendChild(link);
 
       row.appendChild(tdAlias);
@@ -226,8 +245,19 @@
     }
   };
 
+// Add this helper function above init
+  const isManagerIoPage = () => {
+    const hasSidebar = Boolean(document.querySelector('#sidebar'));
+    const hasBusinessQuery = Boolean(getBusinessQuery());
+    return hasSidebar || hasBusinessQuery;
+  };
+
+  // Replace your existing init function with this updated version
   const init = () => {
+    // Only render the command bar if Manager.io DOM elements exist
+    if (!isManagerIoPage()) return;
     if (document.getElementById('mgcmd-bar')) return;
+
     const { bar, input, render } = createBar();
     document.body.insertBefore(bar, document.body.firstChild);
     input.focus();
@@ -235,4 +265,4 @@
   };
 
   init();
-})();
+})(); // <-- Very last line of content.js
