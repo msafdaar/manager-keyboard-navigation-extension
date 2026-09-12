@@ -1,3 +1,19 @@
+/* Theme: Mint Fresh (ACTIVE) */
+:root {
+  --mgcmd-bg: #f0faf7;
+  --mgcmd-surface: #ffffff;
+  --mgcmd-border: #a7e3d0;
+  --mgcmd-border-subtle: #d1f0e5;
+  --mgcmd-text: #0b3b2e;
+  --mgcmd-text-muted: #3d7a66;
+  --mgcmd-text-subtle: #7fa793;
+  --mgcmd-accent: #059669;
+  --mgcmd-accent-hover: #047857;
+  --mgcmd-danger: #dc2626;
+  --mgcmd-overlay: rgba(11, 59, 46, 0.4);
+  --mgcmd-shadow: rgba(5, 150, 105, 0.18);
+}
+
 #mgcmd-bar {
   position: sticky;
   top: 0;
@@ -8,8 +24,8 @@
   height: 34px;
   padding: 0 12px;
   box-sizing: border-box;
-  background: #f8fafc;
-  border-bottom: 1px solid #cbd5e1;
+  background: var(--mgcmd-bg);
+  border-bottom: 1px solid var(--mgcmd-border);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-size: 13px;
   line-height: 1;
@@ -17,7 +33,7 @@
 
 #mgcmd-prompt {
   flex: none;
-  color: #64748b;
+  color: var(--mgcmd-text-muted);
   font-weight: 600;
   user-select: none;
 }
@@ -29,16 +45,16 @@
   height: 24px;
   padding: 0 8px;
   box-sizing: border-box;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--mgcmd-border);
   border-radius: 4px;
-  background: #ffffff;
-  color: #0f172a;
+  background: var(--mgcmd-surface);
+  color: var(--mgcmd-text);
   font: inherit;
   outline: none;
 }
 
 #mgcmd-input:focus {
-  border-color: #2563eb;
+  border-color: var(--mgcmd-accent);
 }
 
 #mgcmd-desc {
@@ -51,19 +67,19 @@
 }
 
 .mgcmd-hint {
-  color: #94a3b8;
+  color: var(--mgcmd-text-subtle);
 }
 
 .mgcmd-search {
-  color: #0f172a;
+  color: var(--mgcmd-text);
 }
 
 .mgcmd-nav {
-  color: #2563eb;
+  color: var(--mgcmd-accent);
 }
 
 .mgcmd-error {
-  color: #b91c1c;
+  color: var(--mgcmd-danger);
 }
 
 #mgcmd-alias-toggle {
@@ -72,7 +88,7 @@
   padding: 0;
   border: none;
   background: none;
-  color: #2563eb;
+  color: var(--mgcmd-accent);
   font: inherit;
   font-size: 12px;
   text-decoration: underline;
@@ -81,7 +97,7 @@
 }
 
 #mgcmd-alias-toggle:hover {
-  color: #1d4ed8;
+  color: var(--mgcmd-accent-hover);
 }
 
 #mgcmd-modal-overlay {
@@ -91,7 +107,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(15, 23, 42, 0.45);
+  background: var(--mgcmd-overlay);
 }
 
 #mgcmd-modal {
@@ -101,13 +117,13 @@
   overflow: auto;
   box-sizing: border-box;
   padding: 16px;
-  background: #ffffff;
+  background: var(--mgcmd-surface);
   border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 24px var(--mgcmd-shadow);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   font-size: 13px;
   line-height: 1.4;
-  color: #0f172a;
+  color: var(--mgcmd-text);
 }
 
 #mgcmd-modal-header {
@@ -122,17 +138,17 @@
 
 #mgcmd-modal-header button {
   padding: 4px 10px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--mgcmd-border);
   border-radius: 4px;
-  background: #f8fafc;
-  color: #0f172a;
+  background: var(--mgcmd-bg);
+  color: var(--mgcmd-text);
   font: inherit;
   font-size: 12px;
   cursor: pointer;
 }
 
 #mgcmd-modal-header button:hover {
-  background: #e2e8f0;
+  background: var(--mgcmd-border-subtle);
 }
 
 #mgcmd-modal-table {
@@ -143,12 +159,12 @@
 #mgcmd-modal-table th,
 #mgcmd-modal-table td {
   padding: 6px 10px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--mgcmd-border-subtle);
   text-align: left;
 }
 
 #mgcmd-modal-table th {
-  color: #64748b;
+  color: var(--mgcmd-text-muted);
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
@@ -161,7 +177,7 @@
 }
 
 #mgcmd-modal-table a {
-  color: #2563eb;
+  color: var(--mgcmd-accent);
   text-decoration: none;
 }
 
