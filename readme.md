@@ -14,7 +14,6 @@ Short Alias Navigation: Jump between core modules using keyboard shortcodes (e.g
 
 Combined Search & Jump: Pass a search term directly with an alias (e.g., /si Inv-1002) to navigate to that section and execute the search in a single step.
 
-Dynamic Business Resolution: Automatically extracts the business key and query parameters from the DOM, allowing seamless switching across different business files, hosts, and ports.
 
 ## Why It Does That
 
