@@ -1,6 +1,11 @@
 # Command Bar for Manager.io
 
 A keyboard-first browser extension for Manager.io that enables instant search and fast navigation using short command aliases.
+## Supported Environment
+
+* **Supported Edition**: Any Manager.io Edition running in a browser tab.
+* **Supported Browsers**: Google Chrome, Microsoft Edge
+* **Tested Manager Version**: Manager v26.9.1.0 Desktop & 25.7.12.2494 Desktop  
 
 ## What It Does
 

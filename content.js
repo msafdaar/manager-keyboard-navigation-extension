@@ -21,21 +21,20 @@
   const EMPTY_HINT = 'Type to search · /alias to navigate';
   const PENDING_SEARCH_KEY = 'mgcmd:pendingSearch';
 
-  // Dynamically extract the business key from #tabSummary or current URL
+// Extract business query from #tabSummary or any sidebar link
   const getBusinessQuery = () => {
-    const summaryTab = document.querySelector('#tabSummary');
+    const summaryTab = document.querySelector('#tabSummary') || document.querySelector('a[href*="/summary-view"]');
     if (summaryTab) {
       const href = summaryTab.getAttribute('href');
       if (href && href.includes('?')) return href.split('?')[1];
     }
-    // Fallback: check any sidebar link with a query parameter
     const sidebarLink = document.querySelector('#sidebar a[href*="?"]');
     if (sidebarLink) {
       return sidebarLink.getAttribute('href').split('?')[1];
     }
-    // Final fallback to the active page query string
-    return window.location.search.replace(/^\?/, '');
+    return null;
   };
+
 
   // Construct absolute dynamic URL for an alias
   const getUrlForAlias = (alias) => {
@@ -245,24 +244,35 @@
     }
   };
 
-// Add this helper function above init
+  // Strictly verify Manager.io presence using structural IDs
   const isManagerIoPage = () => {
     const hasSidebar = Boolean(document.querySelector('#sidebar'));
-    const hasBusinessQuery = Boolean(getBusinessQuery());
-    return hasSidebar || hasBusinessQuery;
+    const hasSummaryTab = Boolean(document.querySelector('#tabSummary') || document.querySelector('a[href*="/summary-view"]'));
+    return hasSidebar || hasSummaryTab;
   };
 
-  // Replace your existing init function with this updated version
+  // Wait for dynamic DOM hydration before initializing
   const init = () => {
-    // Only render the command bar if Manager.io DOM elements exist
-    if (!isManagerIoPage()) return;
     if (document.getElementById('mgcmd-bar')) return;
 
-    const { bar, input, render } = createBar();
-    document.body.insertBefore(bar, document.body.firstChild);
-    input.focus();
-    runPendingSearch(input, render);
+    let attempts = 0;
+    const maxAttempts = 20; // Try for up to 2 seconds
+
+    const checkAndRender = () => {
+      if (isManagerIoPage()) {
+        const { bar, input, render } = createBar();
+        document.body.insertBefore(bar, document.body.firstChild);
+        input.focus();
+        runPendingSearch(input, render);
+      } else if (attempts < maxAttempts) {
+        attempts++;
+        setTimeout(checkAndRender, 100);
+      }
+    };
+
+    checkAndRender();
   };
 
   init();
-})(); // <-- Very last line of content.js
+
+})();
