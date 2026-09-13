@@ -17,7 +17,7 @@ Combined Search & Jump: Pass a search term directly with an alias (e.g., /si Inv
 
 ## Why It Does That
 
-Default navigation in Manager.io requires frequent mouse usage to switch sections via the sidebar. This extension streamlines daily accounting workflows by providing a fast command line interface that handles route jumping, search parameter passing.
+Default navigation in Manager.io requires frequent mouse usage to switch sections via the sidebar. This extension streamlines daily accounting workflows by providing a keyboard based interface that handles route jumping, search parameter passing.
 
 ## How to Load It
 
