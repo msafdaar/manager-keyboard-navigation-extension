@@ -184,3 +184,9 @@
 #mgcmd-modal-table a:hover {
   text-decoration: underline;
 }
+
+@media print {
+  #mgcmd-bar {
+    display: none !important;
+  }
+}
