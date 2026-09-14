@@ -78,6 +78,10 @@
   color: var(--mgcmd-accent);
 }
 
+.mgcmd-clear {
+  color: var(--mgcmd-accent);
+}
+
 .mgcmd-error {
   color: var(--mgcmd-danger);
 }

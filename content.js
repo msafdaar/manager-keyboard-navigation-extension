@@ -59,12 +59,28 @@
 
   const hasSearchBar = Boolean(findSearchInput());
 
+  const getActiveSearch = () => {
+    const input = findSearchInput();
+    return input && input.form && input.value.trim() !== '' ? input : null;
+  };
+
+  const clearSearch = () => {
+    const input = getActiveSearch();
+    if (!input) return;
+    input.value = '';
+    input.form.requestSubmit();
+  };
+
   const truncate = (text) =>
     text.length > TRUNCATE_LIMIT ? text.slice(0, TRUNCATE_LIMIT) + '…' : text;
 
   const describe = (value) => {
     const trimmed = value.trim();
     if (trimmed === '') {
+      const active = getActiveSearch();
+      if (active) {
+        return { text: `Enter to clear search · currently "${truncate(active.value.trim())}"`, kind: 'clear' };
+      }
       return hasSearchBar
         ? { text: EMPTY_HINT, kind: 'hint' }
         : { text: 'No search Bar Detected - /alias to navigate', kind: 'hint' };
@@ -87,7 +103,10 @@
 
   const execute = (value) => {
     const trimmed = value.trim();
-    if (trimmed === '') return;
+    if (trimmed === '') {
+      clearSearch();
+      return;
+    }
     if (trimmed.startsWith('/')) {
       const { alias, term } = parseNav(trimmed);
       if (alias === '') return;
@@ -274,5 +293,17 @@
   };
 
   init();
+
+  const refocusHandler = (event) => {
+    if (!(event.ctrlKey && event.key === '`')) return;
+    if (document.getElementById('mgcmd-modal-overlay')) return;
+    event.preventDefault();
+    const input = document.getElementById('mgcmd-input');
+    if (input) {
+      input.focus();
+      input.select();
+    }
+  };
+  window.addEventListener('keydown', refocusHandler);
 
 })();
