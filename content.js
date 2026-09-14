@@ -298,11 +298,17 @@
     if (!(event.ctrlKey && event.key === '`')) return;
     if (document.getElementById('mgcmd-modal-overlay')) return;
     event.preventDefault();
-    const input = document.getElementById('mgcmd-input');
-    if (input) {
-      input.focus();
-      input.select();
+    const barInput = document.getElementById('mgcmd-input');
+    if (!barInput) return;
+
+    const pageSelection = window.getSelection()?.toString() || '';
+    if (pageSelection && document.activeElement !== barInput) {
+      barInput.value = pageSelection.trim();
+      barInput.dispatchEvent(new Event('input', { bubbles: true }));
     }
+
+    barInput.focus();
+    barInput.select();
   };
   window.addEventListener('keydown', refocusHandler);
 
