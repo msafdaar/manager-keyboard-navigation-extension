@@ -14,6 +14,10 @@ Short Alias Navigation: Jump between core modules using keyboard shortcodes (e.g
 
 Combined Search & Jump: Pass a search term directly with an alias (e.g., /si Inv-1002) to navigate to that section and execute the search in a single step.
 
+Optional Features: Enable or disable opt-in tools from the "Optional features" link on the command bar. Settings persist, but any marks they produce are session-only.
+
+* Row Highlighter: Click a table row to cycle its background color while comparing against physical books — green once it matches, red if it needs fixing, and a third click resets the row. Disabling the feature clears all current marks.
+
 
 ## Why It Does That
 

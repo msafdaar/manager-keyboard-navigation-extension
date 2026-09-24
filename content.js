@@ -139,80 +139,204 @@
     input.form.requestSubmit();
   };
 
-  function closeAliasModal() {
-    const overlay = document.getElementById('mgcmd-modal-overlay');
+  function closeModal() {
+    const overlay = document.querySelector('.mgx-modal-overlay');
     if (overlay) overlay.remove();
   }
 
-  function showAliasModal() {
-    closeAliasModal();
+  function openModal(titleText, buildContent) {
+    closeModal();
     const overlay = document.createElement('div');
-    overlay.id = 'mgcmd-modal-overlay';
+    overlay.className = 'mgx-modal-overlay';
 
     const modal = document.createElement('div');
-    modal.id = 'mgcmd-modal';
+    modal.className = 'mgx-modal';
 
     const header = document.createElement('div');
-    header.id = 'mgcmd-modal-header';
+    header.className = 'mgx-modal-header';
     const title = document.createElement('span');
-    title.textContent = 'Navigation aliases';
+    title.textContent = titleText;
     const closeBtn = document.createElement('button');
     closeBtn.type = 'button';
     closeBtn.textContent = 'Close';
-    closeBtn.addEventListener('click', closeAliasModal);
+    closeBtn.addEventListener('click', closeModal);
     header.appendChild(title);
     header.appendChild(closeBtn);
 
-    const table = document.createElement('table');
-    table.id = 'mgcmd-modal-table';
-    const thead = document.createElement('thead');
-    const headRow = document.createElement('tr');
-    ['Alias', 'Label', 'Link'].forEach((label) => {
-      const th = document.createElement('th');
-      th.textContent = label;
-      headRow.appendChild(th);
-    });
-    thead.appendChild(headRow);
-
-    const tbody = document.createElement('tbody');
-    Object.entries(ALIASES).forEach(([alias, entry]) => {
-      const row = document.createElement('tr');
-
-      const tdAlias = document.createElement('td');
-      tdAlias.className = 'mgcmd-alias-cell';
-      tdAlias.textContent = `/${alias}`;
-
-      const tdLabel = document.createElement('td');
-      tdLabel.textContent = entry.label;
-
-      const tdLink = document.createElement('td');
-      const link = document.createElement('a');
-      const targetUrl = getUrlForAlias(alias);
-      link.href = targetUrl;
-      link.textContent = targetUrl;
-      tdLink.appendChild(link);
-
-      row.appendChild(tdAlias);
-      row.appendChild(tdLabel);
-      row.appendChild(tdLink);
-      tbody.appendChild(row);
-    });
-    table.appendChild(thead);
-    table.appendChild(tbody);
-
     modal.appendChild(header);
-    modal.appendChild(table);
+    modal.appendChild(buildContent());
     overlay.appendChild(modal);
     document.body.appendChild(overlay);
 
     overlay.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') closeAliasModal();
+      if (event.key === 'Escape') closeModal();
     });
     overlay.addEventListener('click', (event) => {
-      if (event.target === overlay) closeAliasModal();
+      if (event.target === overlay) closeModal();
     });
     closeBtn.focus();
   }
+
+  function showAliasModal() {
+    openModal('Navigation aliases', () => {
+      const table = document.createElement('table');
+      table.className = 'mgx-modal-table';
+
+      const thead = document.createElement('thead');
+      const headRow = document.createElement('tr');
+      ['Alias', 'Label', 'Link'].forEach((label) => {
+        const th = document.createElement('th');
+        th.textContent = label;
+        headRow.appendChild(th);
+      });
+      thead.appendChild(headRow);
+
+      const tbody = document.createElement('tbody');
+      Object.entries(ALIASES).forEach(([alias, entry]) => {
+        const row = document.createElement('tr');
+
+        const tdAlias = document.createElement('td');
+        tdAlias.className = 'mgx-alias-cell';
+        tdAlias.textContent = `/${alias}`;
+
+        const tdLabel = document.createElement('td');
+        tdLabel.textContent = entry.label;
+
+        const tdLink = document.createElement('td');
+        const link = document.createElement('a');
+        const targetUrl = getUrlForAlias(alias);
+        link.href = targetUrl;
+        link.textContent = targetUrl;
+        tdLink.appendChild(link);
+
+        row.appendChild(tdAlias);
+        row.appendChild(tdLabel);
+        row.appendChild(tdLink);
+        tbody.appendChild(row);
+      });
+      table.appendChild(thead);
+      table.appendChild(tbody);
+      return table;
+    });
+  }
+
+  // ---- Optional features ----
+  const FEATURES_KEY = 'mgx:features';
+
+  const getFeatureState = (id) => {
+    try {
+      return Boolean(JSON.parse(localStorage.getItem(FEATURES_KEY) || '{}')[id]);
+    } catch {
+      return false;
+    }
+  };
+
+  const setFeatureEnabled = (id, enabled) => {
+    try {
+      const data = JSON.parse(localStorage.getItem(FEATURES_KEY) || '{}');
+      if (enabled) data[id] = true;
+      else delete data[id];
+      localStorage.setItem(FEATURES_KEY, JSON.stringify(data));
+    } catch {
+      // Ignore storage errors
+    }
+    const feature = OPTIONAL_FEATURES[id];
+    if (feature) {
+      if (enabled) feature.enable();
+      else feature.disable();
+    }
+  };
+
+  let lastMouseDown = null;
+  const trackMouseDown = (event) => {
+    lastMouseDown = { x: event.clientX, y: event.clientY };
+  };
+
+  const rowHighlighterClick = (event) => {
+    if (lastMouseDown && (Math.abs(event.clientX - lastMouseDown.x) > 4 || Math.abs(event.clientY - lastMouseDown.y) > 4)) {
+      return;
+    }
+    lastMouseDown = null;
+    if (event.target.closest('#mgcmd-bar, .mgx-modal-overlay')) return;
+    const row = event.target.closest('tbody tr');
+    if (!row) return;
+    if (event.target.closest('a, button, input, select, textarea, [role="button"], [contenteditable]')) return;
+    if (row.querySelector('th')) return;
+
+    const current = row.dataset.mgxState ? parseInt(row.dataset.mgxState, 10) : 0;
+    const next = (current + 1) % 3;
+    row.classList.remove('mgx-green', 'mgx-red');
+    if (next === 1) row.classList.add('mgx-green');
+    else if (next === 2) row.classList.add('mgx-red');
+    if (next === 0) delete row.dataset.mgxState;
+    else row.dataset.mgxState = String(next);
+  };
+
+  const clearRowHighlighterMarks = () => {
+    document.querySelectorAll('tbody tr.mgx-green, tbody tr.mgx-red').forEach((row) => {
+      row.classList.remove('mgx-green', 'mgx-red');
+      delete row.dataset.mgxState;
+    });
+  };
+
+  const OPTIONAL_FEATURES = {
+    rowHighlighter: {
+      name: 'Row Highlighter',
+      desc: 'Click a table row to cycle its background color: green = matched to the physical book, red = needs fixing, click again to reset.',
+      enable() {
+        document.addEventListener('mousedown', trackMouseDown);
+        document.addEventListener('click', rowHighlighterClick);
+      },
+      disable() {
+        document.removeEventListener('mousedown', trackMouseDown);
+        document.removeEventListener('click', rowHighlighterClick);
+        clearRowHighlighterMarks();
+      },
+    },
+  };
+
+  function showFeaturesModal() {
+    openModal('Optional features', () => {
+      const list = document.createElement('div');
+      list.className = 'mgx-features-list';
+
+      Object.entries(OPTIONAL_FEATURES).forEach(([id, feature]) => {
+        const item = document.createElement('label');
+        item.className = 'mgx-feature';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = getFeatureState(id);
+
+        const text = document.createElement('span');
+        text.className = 'mgx-feature-text';
+
+        const name = document.createElement('span');
+        name.className = 'mgx-feature-name';
+        name.textContent = feature.name;
+
+        const desc = document.createElement('span');
+        desc.className = 'mgx-feature-desc';
+        desc.textContent = feature.desc;
+
+        text.appendChild(name);
+        text.appendChild(desc);
+
+        checkbox.addEventListener('change', () => setFeatureEnabled(id, checkbox.checked));
+
+        item.appendChild(checkbox);
+        item.appendChild(text);
+        list.appendChild(item);
+      });
+      return list;
+    });
+  }
+
+  const applyFeatures = () => {
+    Object.entries(OPTIONAL_FEATURES).forEach(([id, feature]) => {
+      if (getFeatureState(id)) feature.enable();
+    });
+  };
 
   const createBar = () => {
     const bar = document.createElement('div');
@@ -239,10 +363,17 @@
     toggle.textContent = 'Show all alias';
     toggle.addEventListener('click', showAliasModal);
 
+    const featuresToggle = document.createElement('button');
+    featuresToggle.id = 'mgx-features-toggle';
+    featuresToggle.type = 'button';
+    featuresToggle.textContent = 'Optional features';
+    featuresToggle.addEventListener('click', showFeaturesModal);
+
     bar.appendChild(prompt);
     bar.appendChild(input);
     bar.appendChild(desc);
     bar.appendChild(toggle);
+    bar.appendChild(featuresToggle);
 
     const render = () => {
       const { text, kind } = describe(input.value);
@@ -298,6 +429,7 @@
         document.body.insertBefore(bar, document.body.firstChild);
         input.focus();
         runPendingSearch(input, render);
+        applyFeatures();
       } else if (attempts < maxAttempts) {
         attempts++;
         setTimeout(checkAndRender, 100);
@@ -311,7 +443,7 @@
 
   const refocusHandler = (event) => {
     if (!(event.ctrlKey && event.key === '`')) return;
-    if (document.getElementById('mgcmd-modal-overlay')) return;
+    if (document.querySelector('.mgx-modal-overlay')) return;
     event.preventDefault();
     const barInput = document.getElementById('mgcmd-input');
     if (!barInput) return;
