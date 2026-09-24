@@ -101,9 +101,15 @@
     return { text: `Search for "${truncate(trimmed)}"`, kind: 'search' };
   };
 
-  const execute = (value) => {
+  const execute = (value, newTab = false) => {
+    const open = (url) => {
+      if (newTab) window.open(url, '_blank');
+      else window.location.href = url;
+    };
+
     const trimmed = value.trim();
     if (trimmed === '') {
+      if (newTab) return;
       clearSearch();
       return;
     }
@@ -113,13 +119,22 @@
       const entry = ALIASES[alias];
       if (entry) {
         if (term !== '') sessionStorage.setItem(PENDING_SEARCH_KEY, term);
-        window.location.href = getUrlForAlias(alias);
+        open(getUrlForAlias(alias));
       }
       return;
     }
     if (!hasSearchBar) return;
     const input = findSearchInput();
     if (!input || !input.form) return;
+    if (newTab) {
+      const previousValue = input.value;
+      input.value = trimmed;
+      input.form.target = '_blank';
+      input.form.requestSubmit();
+      input.value = previousValue;
+      input.form.target = '';
+      return;
+    }
     input.value = trimmed;
     input.form.requestSubmit();
   };
@@ -239,7 +254,7 @@
     input.addEventListener('keydown', (event) => {
       if (event.key === 'Enter') {
         event.preventDefault();
-        execute(input.value);
+        execute(input.value, event.shiftKey);
       } else if (event.key === 'Escape') {
         input.blur();
       }
