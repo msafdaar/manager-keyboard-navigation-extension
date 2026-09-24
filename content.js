@@ -220,6 +220,8 @@
 
   // ---- Optional features ----
   const FEATURES_KEY = 'mgx:features';
+  const tabActiveFeatures = new Set();
+  const activeFeatures = new Set();
 
   const getFeatureState = (id) => {
     try {
@@ -238,11 +240,44 @@
     } catch {
       // Ignore storage errors
     }
+    refreshFeature(id);
+  };
+
+  const refreshFeature = (id) => {
     const feature = OPTIONAL_FEATURES[id];
-    if (feature) {
-      if (enabled) feature.enable();
-      else feature.disable();
+    if (!feature) return;
+    const on = getFeatureState(id) || tabActiveFeatures.has(id);
+    if (on && !activeFeatures.has(id)) {
+      feature.enable();
+      activeFeatures.add(id);
+    } else if (!on && activeFeatures.has(id)) {
+      feature.disable();
+      activeFeatures.delete(id);
     }
+  };
+
+  const activateFeatureOnTab = (id) => {
+    const feature = OPTIONAL_FEATURES[id];
+    if (!feature) return;
+    tabActiveFeatures.add(id);
+    refreshFeature(id);
+    if (feature.tabOnlyToast) showToast(feature.tabOnlyToast);
+  };
+
+  let toastTimer = null;
+  const showToast = (message) => {
+    let toast = document.getElementById('mgx-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'mgx-toast';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.classList.add('mgx-toast-show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toast.classList.remove('mgx-toast-show');
+    }, 2600);
   };
 
   let lastMouseDown = null;
@@ -277,6 +312,18 @@
     });
   };
 
+  const openLinksInNewTabClick = (event) => {
+    if (event.defaultPrevented) return;
+    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    if (event.target.closest('#mgcmd-bar, .mgx-modal-overlay')) return;
+    const link = event.target.closest('a[href]');
+    if (!link || link.target === '_blank') return;
+    const href = (link.getAttribute('href') || '').trim();
+    if (href === '' || href === '#' || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+    event.preventDefault();
+    window.open(link.href, '_blank');
+  };
+
   const OPTIONAL_FEATURES = {
     rowHighlighter: {
       name: 'Row Highlighter',
@@ -291,40 +338,69 @@
         clearRowHighlighterMarks();
       },
     },
+    openLinksInNewTab: {
+      name: 'Open links in new tabs',
+      desc: 'All page links open in a new tab, keeping the current page and its marks in place.',
+      tabOnlyLabel: 'Activate on current tab only',
+      tabOnlyToast: 'All links from current tab will open in a new tab',
+      enable() {
+        document.addEventListener('click', openLinksInNewTabClick, true);
+      },
+      disable() {
+        document.removeEventListener('click', openLinksInNewTabClick, true);
+      },
+    },
   };
 
   const buildFeaturesList = () => {
     const list = document.createElement('div');
     list.className = 'mgx-features-list';
 
-    Object.entries(OPTIONAL_FEATURES).forEach(([id, feature]) => {
-      const item = document.createElement('label');
-      item.className = 'mgx-feature';
+Object.entries(OPTIONAL_FEATURES).forEach(([id, feature]) => {
+        const item = document.createElement('label');
+        item.className = 'mgx-feature';
 
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.checked = getFeatureState(id);
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = getFeatureState(id);
 
-      const text = document.createElement('span');
-      text.className = 'mgx-feature-text';
+        const body = document.createElement('span');
+        body.className = 'mgx-feature-body';
 
-      const name = document.createElement('span');
-      name.className = 'mgx-feature-name';
-      name.textContent = feature.name;
+        const text = document.createElement('span');
+        text.className = 'mgx-feature-text';
 
-      const desc = document.createElement('span');
-      desc.className = 'mgx-feature-desc';
-      desc.textContent = feature.desc;
+        const name = document.createElement('span');
+        name.className = 'mgx-feature-name';
+        name.textContent = feature.name;
 
-      text.appendChild(name);
-      text.appendChild(desc);
+        const desc = document.createElement('span');
+        desc.className = 'mgx-feature-desc';
+        desc.textContent = feature.desc;
 
-      checkbox.addEventListener('change', () => setFeatureEnabled(id, checkbox.checked));
+        text.appendChild(name);
+        text.appendChild(desc);
+        body.appendChild(text);
 
-      item.appendChild(checkbox);
-      item.appendChild(text);
-      list.appendChild(item);
-    });
+        if (feature.tabOnlyLabel) {
+          const tabOnly = document.createElement('button');
+          tabOnly.type = 'button';
+          tabOnly.className = 'mgx-feature-tabonly';
+          tabOnly.textContent = feature.tabOnlyLabel;
+          tabOnly.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            activateFeatureOnTab(id);
+          });
+          body.appendChild(tabOnly);
+        }
+
+        checkbox.addEventListener('change', () => setFeatureEnabled(id, checkbox.checked));
+
+        item.appendChild(checkbox);
+        item.appendChild(body);
+        list.appendChild(item);
+      });
     return list;
   };
 
@@ -350,9 +426,7 @@
   }
 
   const applyFeatures = () => {
-    Object.entries(OPTIONAL_FEATURES).forEach(([id, feature]) => {
-      if (getFeatureState(id)) feature.enable();
-    });
+    Object.keys(OPTIONAL_FEATURES).forEach(refreshFeature);
   };
 
   const createBar = () => {

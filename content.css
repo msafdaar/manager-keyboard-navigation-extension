@@ -245,6 +245,59 @@
   cursor: pointer;
 }
 
+.mgx-feature-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.mgx-feature-tabonly {
+  align-self: flex-start;
+  padding: 4px 10px;
+  border: 1px solid var(--mgcmd-border);
+  border-radius: 4px;
+  background: var(--mgcmd-surface);
+  color: var(--mgcmd-accent);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.mgx-feature-tabonly:hover {
+  background: var(--mgcmd-border-subtle);
+  color: var(--mgcmd-accent-hover);
+}
+
+#mgx-toast {
+  position: fixed;
+  right: 12px;
+  bottom: 16px;
+  z-index: 2147483002;
+  max-width: 320px;
+  padding: 10px 14px;
+  box-sizing: border-box;
+  background: var(--mgcmd-surface);
+  border: 1px solid var(--mgcmd-border);
+  border-left: 3px solid var(--mgcmd-accent);
+  border-radius: 6px;
+  box-shadow: 0 6px 18px var(--mgcmd-shadow);
+  color: var(--mgcmd-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+}
+
+#mgx-toast.mgx-toast-show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .mgx-feature-text {
   display: flex;
   flex-direction: column;
