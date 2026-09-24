@@ -177,48 +177,46 @@
     closeBtn.focus();
   }
 
-  function showAliasModal() {
-    openModal('Navigation aliases', () => {
-      const table = document.createElement('table');
-      table.className = 'mgx-modal-table';
+  const buildAliasTable = () => {
+    const table = document.createElement('table');
+    table.className = 'mgx-modal-table';
 
-      const thead = document.createElement('thead');
-      const headRow = document.createElement('tr');
-      ['Alias', 'Label', 'Link'].forEach((label) => {
-        const th = document.createElement('th');
-        th.textContent = label;
-        headRow.appendChild(th);
-      });
-      thead.appendChild(headRow);
-
-      const tbody = document.createElement('tbody');
-      Object.entries(ALIASES).forEach(([alias, entry]) => {
-        const row = document.createElement('tr');
-
-        const tdAlias = document.createElement('td');
-        tdAlias.className = 'mgx-alias-cell';
-        tdAlias.textContent = `/${alias}`;
-
-        const tdLabel = document.createElement('td');
-        tdLabel.textContent = entry.label;
-
-        const tdLink = document.createElement('td');
-        const link = document.createElement('a');
-        const targetUrl = getUrlForAlias(alias);
-        link.href = targetUrl;
-        link.textContent = targetUrl;
-        tdLink.appendChild(link);
-
-        row.appendChild(tdAlias);
-        row.appendChild(tdLabel);
-        row.appendChild(tdLink);
-        tbody.appendChild(row);
-      });
-      table.appendChild(thead);
-      table.appendChild(tbody);
-      return table;
+    const thead = document.createElement('thead');
+    const headRow = document.createElement('tr');
+    ['Alias', 'Label', 'Link'].forEach((label) => {
+      const th = document.createElement('th');
+      th.textContent = label;
+      headRow.appendChild(th);
     });
-  }
+    thead.appendChild(headRow);
+
+    const tbody = document.createElement('tbody');
+    Object.entries(ALIASES).forEach(([alias, entry]) => {
+      const row = document.createElement('tr');
+
+      const tdAlias = document.createElement('td');
+      tdAlias.className = 'mgx-alias-cell';
+      tdAlias.textContent = `/${alias}`;
+
+      const tdLabel = document.createElement('td');
+      tdLabel.textContent = entry.label;
+
+      const tdLink = document.createElement('td');
+      const link = document.createElement('a');
+      const targetUrl = getUrlForAlias(alias);
+      link.href = targetUrl;
+      link.textContent = targetUrl;
+      tdLink.appendChild(link);
+
+      row.appendChild(tdAlias);
+      row.appendChild(tdLabel);
+      row.appendChild(tdLink);
+      tbody.appendChild(row);
+    });
+    table.appendChild(thead);
+    table.appendChild(tbody);
+    return table;
+  };
 
   // ---- Optional features ----
   const FEATURES_KEY = 'mgx:features';
@@ -295,40 +293,59 @@
     },
   };
 
-  function showFeaturesModal() {
-    openModal('Optional features', () => {
-      const list = document.createElement('div');
-      list.className = 'mgx-features-list';
+  const buildFeaturesList = () => {
+    const list = document.createElement('div');
+    list.className = 'mgx-features-list';
 
-      Object.entries(OPTIONAL_FEATURES).forEach(([id, feature]) => {
-        const item = document.createElement('label');
-        item.className = 'mgx-feature';
+    Object.entries(OPTIONAL_FEATURES).forEach(([id, feature]) => {
+      const item = document.createElement('label');
+      item.className = 'mgx-feature';
 
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.checked = getFeatureState(id);
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = getFeatureState(id);
 
-        const text = document.createElement('span');
-        text.className = 'mgx-feature-text';
+      const text = document.createElement('span');
+      text.className = 'mgx-feature-text';
 
-        const name = document.createElement('span');
-        name.className = 'mgx-feature-name';
-        name.textContent = feature.name;
+      const name = document.createElement('span');
+      name.className = 'mgx-feature-name';
+      name.textContent = feature.name;
 
-        const desc = document.createElement('span');
-        desc.className = 'mgx-feature-desc';
-        desc.textContent = feature.desc;
+      const desc = document.createElement('span');
+      desc.className = 'mgx-feature-desc';
+      desc.textContent = feature.desc;
 
-        text.appendChild(name);
-        text.appendChild(desc);
+      text.appendChild(name);
+      text.appendChild(desc);
 
-        checkbox.addEventListener('change', () => setFeatureEnabled(id, checkbox.checked));
+      checkbox.addEventListener('change', () => setFeatureEnabled(id, checkbox.checked));
 
-        item.appendChild(checkbox);
-        item.appendChild(text);
-        list.appendChild(item);
-      });
-      return list;
+      item.appendChild(checkbox);
+      item.appendChild(text);
+      list.appendChild(item);
+    });
+    return list;
+  };
+
+  const buildSettingsSection = (titleText, content) => {
+    const section = document.createElement('div');
+    section.className = 'mgx-settings-section';
+    const title = document.createElement('div');
+    title.className = 'mgx-settings-title';
+    title.textContent = titleText;
+    section.appendChild(title);
+    section.appendChild(content);
+    return section;
+  };
+
+  function showSettingsModal() {
+    openModal('Settings', () => {
+      const container = document.createElement('div');
+      container.className = 'mgx-settings';
+      container.appendChild(buildSettingsSection('Optional features', buildFeaturesList()));
+      container.appendChild(buildSettingsSection('Navigation aliases', buildAliasTable()));
+      return container;
     });
   }
 
@@ -357,23 +374,19 @@
     desc.id = 'mgcmd-desc';
     desc.className = 'mgcmd-hint';
 
-    const toggle = document.createElement('button');
-    toggle.id = 'mgcmd-alias-toggle';
-    toggle.type = 'button';
-    toggle.textContent = 'Show all alias';
-    toggle.addEventListener('click', showAliasModal);
-
-    const featuresToggle = document.createElement('button');
-    featuresToggle.id = 'mgx-features-toggle';
-    featuresToggle.type = 'button';
-    featuresToggle.textContent = 'Optional features';
-    featuresToggle.addEventListener('click', showFeaturesModal);
+    const settingsToggle = document.createElement('button');
+    settingsToggle.id = 'mgcmd-settings-toggle';
+    settingsToggle.type = 'button';
+    settingsToggle.title = 'Settings';
+    settingsToggle.setAttribute('aria-label', 'Settings');
+    settingsToggle.innerHTML =
+      '<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9.4 1.5a1.6 1.6 0 0 0-2.8 0l-.3.52a1.04 1.04 0 0 1-1.46.4l-.54-.31a1.6 1.6 0 0 0-1.99 2.35l.4.47a1.04 1.04 0 0 1-.3 1.5l-.6.32a1.6 1.6 0 0 0 0 2.76l.6.32c.52.28.72.94.3 1.5l-.4.47a1.6 1.6 0 0 0 1.99 2.35l.54-.31c.54-.31 1.2-.12 1.46.4l.3.52a1.6 1.6 0 0 0 2.8 0l.3-.52a1.04 1.04 0 0 1 1.46-.4l.54.31a1.6 1.6 0 0 0 1.99-2.35l-.4-.47a1.04 1.04 0 0 1 .3-1.5l.6-.32a1.6 1.6 0 0 0 0-2.76l-.6-.32a1.04 1.04 0 0 1-.3-1.5l.4-.47a1.6 1.6 0 0 0-1.99-2.35l-.54.31a1.04 1.04 0 0 1-1.46-.4l-.3-.52ZM8 10.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z"/></svg>';
+    settingsToggle.addEventListener('click', showSettingsModal);
 
     bar.appendChild(prompt);
     bar.appendChild(input);
     bar.appendChild(desc);
-    bar.appendChild(toggle);
-    bar.appendChild(featuresToggle);
+    bar.appendChild(settingsToggle);
 
     const render = () => {
       const { text, kind } = describe(input.value);

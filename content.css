@@ -86,24 +86,31 @@
   color: var(--mgcmd-danger);
 }
 
-#mgcmd-alias-toggle,
-#mgx-features-toggle {
+#mgcmd-settings-toggle {
   flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   margin-left: 2px;
-  padding: 0;
+  padding: 3px;
   border: none;
+  border-radius: 4px;
   background: none;
   color: var(--mgcmd-accent);
-  font: inherit;
-  font-size: 12px;
-  text-decoration: underline;
   cursor: pointer;
-  white-space: nowrap;
+  line-height: 1;
 }
 
-#mgcmd-alias-toggle:hover,
-#mgx-features-toggle:hover {
+#mgcmd-settings-toggle:hover {
   color: var(--mgcmd-accent-hover);
+  background: var(--mgcmd-border-subtle);
+}
+
+#mgcmd-settings-toggle svg {
+  width: 15px;
+  height: 15px;
+  fill: currentColor;
+  display: block;
 }
 
 .mgx-modal-overlay {
@@ -197,6 +204,25 @@
   gap: 10px;
 }
 
+.mgx-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mgx-settings-section {
+  min-width: 0;
+}
+
+.mgx-settings-title {
+  margin-bottom: 8px;
+  color: var(--mgcmd-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 .mgx-feature {
   display: flex;
   align-items: flex-start;
@@ -239,10 +265,14 @@
 
 tbody tr.mgx-green td {
   background-color: #d8f5dd !important;
+  color: #13411b !important;
+
 }
 
 tbody tr.mgx-red td {
   background-color: #fbd4d2 !important;
+  color: #411313 !important;
+
 }
 
 .dark tbody tr.mgx-green td {
