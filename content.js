@@ -351,6 +351,7 @@
     const askDates = (prefill) => new Promise((resolve) => {
       const today = new Date().toISOString().slice(0,10);
       const ov = document.createElement("div");
+      prefill.value = "date_heading"
       ov.className = "mgx-modal-overlay";
       ov.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999999;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;";
       const box = document.createElement("div");
