@@ -1,0 +1,6 @@
+<button onclick="ajaxPost(true)" class="btn btn-success" style="font-weight: bold;">Update</button>
+
+
+<button onclick="ajaxPost(true)" class="btn btn-primary" style="font-weight: bold;">Create</button>
+
+<button onclick="ajaxPost(true)" class="btn btn-primary" style="font-weight: bold;">Create</button>

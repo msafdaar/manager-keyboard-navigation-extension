@@ -14,6 +14,7 @@
         "features/keep-this-page.js",
         "features/date-rows-generator.js",
         "features/autofill-unit-prices.js",
+        "features/focus-on-action-button.js",
         "content.js"
       ],
       "css": ["content.css"],
