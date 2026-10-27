@@ -224,14 +224,24 @@
   const activeFeatures = new Set();
 
   const getFeatureState = (id) => {
+    const feature = OPTIONAL_FEATURES[id];
+    if (feature && feature.persist === false) return tabActiveFeatures.has(id);
     try {
-      return Boolean(JSON.parse(localStorage.getItem(FEATURES_KEY) || '{}')[id]);
+      const data = JSON.parse(localStorage.getItem(FEATURES_KEY) || '{}');
+      return Boolean(data[id]);
     } catch {
       return false;
     }
   };
 
   const setFeatureEnabled = (id, enabled) => {
+    const feature = OPTIONAL_FEATURES[id];
+    if (feature && feature.persist === false) {
+      if (enabled) tabActiveFeatures.add(id);
+      else tabActiveFeatures.delete(id);
+      refreshFeature(id);
+      return;
+    }
     try {
       const data = JSON.parse(localStorage.getItem(FEATURES_KEY) || '{}');
       if (enabled) data[id] = true;
@@ -246,7 +256,7 @@
   const refreshFeature = (id) => {
     const feature = OPTIONAL_FEATURES[id];
     if (!feature) return;
-    const on = getFeatureState(id) || tabActiveFeatures.has(id);
+    const on = getFeatureState(id);
     if (on && !activeFeatures.has(id)) {
       feature.enable();
       activeFeatures.add(id);
@@ -254,30 +264,6 @@
       feature.disable();
       activeFeatures.delete(id);
     }
-  };
-
-  const activateFeatureOnTab = (id) => {
-    const feature = OPTIONAL_FEATURES[id];
-    if (!feature) return;
-    tabActiveFeatures.add(id);
-    refreshFeature(id);
-    if (feature.tabOnlyToast) showToast(feature.tabOnlyToast);
-  };
-
-  let toastTimer = null;
-  const showToast = (message) => {
-    let toast = document.getElementById('mgx-toast');
-    if (!toast) {
-      toast = document.createElement('div');
-      toast.id = 'mgx-toast';
-      document.body.appendChild(toast);
-    }
-    toast.textContent = message;
-    toast.classList.add('mgx-toast-show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => {
-      toast.classList.remove('mgx-toast-show');
-    }, 2600);
   };
 
   let lastMouseDown = null;
@@ -324,6 +310,11 @@
     window.open(link.href, '_blank');
   };
 
+  const keepThisPageConfirm = (event) => {
+    event.preventDefault();
+    event.returnValue = '';
+  };
+
   const OPTIONAL_FEATURES = {
     rowHighlighter: {
       name: 'Row Highlighter',
@@ -338,16 +329,17 @@
         clearRowHighlighterMarks();
       },
     },
-    openLinksInNewTab: {
-      name: 'Open links in new tabs',
-      desc: 'All page links open in a new tab, keeping the current page and its marks in place.',
-      tabOnlyLabel: 'Activate on current tab only',
-      tabOnlyToast: 'All links from current tab will open in a new tab',
+    keepThisPage: {
+      name: 'Keep This Page',
+      desc: 'All links open in new tabs and leaving or refreshing the page asks for confirmation, so nothing on this page — highlighted rows, form entries, notes — is lost to an accidental click or refresh. Active for the current tab only.',
+      persist: false,
       enable() {
         document.addEventListener('click', openLinksInNewTabClick, true);
+        window.addEventListener('beforeunload', keepThisPageConfirm);
       },
       disable() {
         document.removeEventListener('click', openLinksInNewTabClick, true);
+        window.removeEventListener('beforeunload', keepThisPageConfirm);
       },
     },
   };
@@ -381,19 +373,6 @@ Object.entries(OPTIONAL_FEATURES).forEach(([id, feature]) => {
         text.appendChild(name);
         text.appendChild(desc);
         body.appendChild(text);
-
-        if (feature.tabOnlyLabel) {
-          const tabOnly = document.createElement('button');
-          tabOnly.type = 'button';
-          tabOnly.className = 'mgx-feature-tabonly';
-          tabOnly.textContent = feature.tabOnlyLabel;
-          tabOnly.addEventListener('click', (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            activateFeatureOnTab(id);
-          });
-          body.appendChild(tabOnly);
-        }
 
         checkbox.addEventListener('change', () => setFeatureEnabled(id, checkbox.checked));
 
