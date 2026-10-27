@@ -29,4 +29,4 @@ Default navigation in Manager.io requires frequent mouse usage to switch section
 1. Open Chrome or Edge and navigate to `chrome://extensions`.
 2. Toggle **Developer mode** on in the top-right corner.
 3. Click **Load unpacked**.
-4. Select the directory containing `manifest.json`, `content.js`, and `content.css`.
+4. Select the directory containing `manifest.json`, `content.js`, `content.css`, and the `features/` folder.

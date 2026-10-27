@@ -9,7 +9,13 @@
         "http://localhost/*",
         "http://127.0.0.1/*"
       ],
-      "js": ["content.js"],
+      "js": [
+        "features/row-highlighter.js",
+        "features/keep-this-page.js",
+        "features/date-rows-generator.js",
+        "features/autofill-unit-prices.js",
+        "content.js"
+      ],
       "css": ["content.css"],
       "run_at": "document_idle"
     }
