@@ -1,6 +1,4 @@
 (() => {
-  const notify = (message) => window.MGX.showToast(message);
-
   const runAutofillUnitPrices = () => {
     const setVal = (el, v) => {
       const ds = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(el), "value");
@@ -13,7 +11,6 @@
       t.querySelector("tbody tr .select2-container") && t.querySelector("tbody tr textarea")
     );
     if (!TABLE) {
-      notify("Line-items table not found");
       throw new Error("Line-items table not found");
     }
     const TBODY = TABLE.querySelector("tbody");
@@ -122,11 +119,10 @@
       setVal(unitPrice, text);
       filled++;
     }
-
-    notify(`Autofilled ${filled} unit price(s) from descriptions.`);
   };
 
-  (window.MGX_FEATURES = window.MGX_FEATURES || {}).autofillUnitPrices = {
+  (window.MGX_FEATURES = window.MGX_FEATURES || []).push({
+    id: 'autofillUnitPrices',
     name: 'Autofill Unit Price From Descriptions',
     desc: 'Automatically extracts numerical values from table description text boxes and populates corresponding unit price fields.',
     featureScope: 'button',
@@ -134,5 +130,5 @@
     action() {
       runAutofillUnitPrices();
     },
-  };
+  });
 })();

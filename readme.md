@@ -1,6 +1,9 @@
 # Command Bar for Manager.io
 
 A keyboard-first browser extension for Manager.io that enables instant search and fast navigation using short command aliases.
+
+To add your own optional feature, see [FEATURES.md](FEATURES.md).
+
 ## Supported Environment
 
 * **Supported Edition**: Tested on Manager v26.9.1.0 Desktop & 25.7.12.2494 Desktop

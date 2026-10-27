@@ -16,7 +16,8 @@
     event.returnValue = '';
   };
 
-  (window.MGX_FEATURES = window.MGX_FEATURES || {}).keepThisPage = {
+  (window.MGX_FEATURES = window.MGX_FEATURES || []).push({
+    id: 'keepThisPage',
     name: 'Keep This Page',
     desc: 'All links open in new tabs and leaving or refreshing the page asks for confirmation, so nothing on this page — highlighted rows, form entries, notes — is lost to an accidental click or refresh. Active for the current tab only.',
     featureScope: 'tabOnlyCheckbox',
@@ -28,5 +29,5 @@
       document.removeEventListener('click', openLinksInNewTabClick, true);
       window.removeEventListener('beforeunload', keepThisPageConfirm);
     },
-  };
+  });
 })();

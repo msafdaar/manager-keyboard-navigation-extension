@@ -1,6 +1,4 @@
 (() => {
-  const notify = (message) => window.MGX.showToast(message);
-
   const runCustomDateRowsGenerator = async () => {
     const resolveAccount = () => {
       try {
@@ -103,7 +101,7 @@
     try {
       const resolved = resolveAccount();
       const answer = await askDates(resolved);
-      if (!answer){ notify("Autofill cancelled"); return; }
+      if (!answer) return;
 
       const ACCOUNT = answer.account;
       const TABLE = [...document.querySelectorAll("table")].find(t =>
@@ -230,19 +228,17 @@
           setVal(dataRow.querySelector("textarea"), fmt(d));
         } catch(e){
           console.error(`[autofill] ✗ date ${i+1} ${d.toDateString()}:`, e.message);
-          notify(`Error: ${e.message}`);
           break;
         }
         await wait(50);
       }
-      notify("Date rows generation completed!");
     } catch(err) {
       console.error("[autofill] FATAL:", err.message);
-      notify(`Autofill error: ${err.message}`);
     }
   };
 
-  (window.MGX_FEATURES = window.MGX_FEATURES || {}).dateRowsGenerator = {
+  (window.MGX_FEATURES = window.MGX_FEATURES || []).push({
+    id: 'dateRowsGenerator',
     name: 'Custom Date Rows Generator',
     desc: 'Automatically populates table rows with custom date ranges and account entries for Manager.io accounting tables.',
     featureScope: 'button',
@@ -250,5 +246,5 @@
     action() {
       runCustomDateRowsGenerator();
     },
-  };
+  });
 })();

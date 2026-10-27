@@ -138,24 +138,6 @@
     input.form.requestSubmit();
   };
 
-  const showToast = (message) => {
-    let toast = document.querySelector('.mgx-toast');
-    if (!toast) {
-      toast = document.createElement('div');
-      toast.className = 'mgx-toast';
-      document.body.appendChild(toast);
-    }
-    toast.textContent = message;
-    toast.classList.add('mgx-toast-visible');
-    clearTimeout(showToast.timer);
-    showToast.timer = setTimeout(() => {
-      toast.classList.remove('mgx-toast-visible');
-      setTimeout(() => toast.remove(), 200);
-    }, 2500);
-  };
-
-  window.MGX = Object.assign(window.MGX || {}, { showToast });
-
   function closeModal() {
     const overlay = document.querySelector('.mgx-modal-overlay');
     if (overlay) overlay.remove();
@@ -236,8 +218,6 @@
   };
 
   // ---- Optional features ----
-  const OPTIONAL_FEATURES = window.MGX_FEATURES || {};
-  const FEATURE_ORDER = ['rowHighlighter', 'keepThisPage', 'dateRowsGenerator', 'autofillUnitPrices'];
   const FEATURES_KEY = 'mgx:features';
   const FEATURE_SCOPES = {
     localStorageCheckbox: { control: 'checkbox', storage: 'local' },
@@ -247,22 +227,52 @@
   const tabActiveFeatures = new Set();
   const activeFeatures = new Set();
 
-  const getFeatureIds = () => {
-    const ids = FEATURE_ORDER.filter((id) => OPTIONAL_FEATURES[id]);
-    Object.keys(OPTIONAL_FEATURES).forEach((id) => {
-      if (!ids.includes(id)) ids.push(id);
-    });
-    return ids;
-  };
-
-  const getFeatureScope = (id) => {
-    const feature = OPTIONAL_FEATURES[id];
-    const scope = feature && FEATURE_SCOPES[feature.featureScope];
+  const validateFeature = (feature) => {
+    const id = feature && feature.id;
+    if (typeof id !== 'string' || id === '') {
+      console.warn('[mgcmd] Skipping a feature with a missing or invalid id.', feature);
+      return null;
+    }
+    const scope = FEATURE_SCOPES[feature.featureScope];
     if (!scope) {
       console.warn(`[mgcmd] Feature "${id}" has an invalid or missing featureScope.`);
       return null;
     }
+    if (typeof feature.name !== 'string' || typeof feature.desc !== 'string') {
+      console.warn(`[mgcmd] Feature "${id}" must define name and desc.`);
+      return null;
+    }
+    if (scope.control === 'button') {
+      if (typeof feature.action !== 'function' || typeof feature.actionLabel !== 'string') {
+        console.warn(`[mgcmd] Button feature "${id}" must define actionLabel and action().`);
+        return null;
+      }
+    } else if (typeof feature.enable !== 'function' || typeof feature.disable !== 'function') {
+      console.warn(`[mgcmd] Feature "${id}" must define enable() and disable().`);
+      return null;
+    }
     return scope;
+  };
+
+  const OPTIONAL_FEATURES = [];
+  const featuresById = new Map();
+  const registeredFeatures = Array.isArray(window.MGX_FEATURES) ? window.MGX_FEATURES : [];
+
+  registeredFeatures.forEach((feature) => {
+    if (!validateFeature(feature)) return;
+    if (featuresById.has(feature.id)) {
+      console.warn(`[mgcmd] Duplicate feature id "${feature.id}" ignored.`);
+      return;
+    }
+    featuresById.set(feature.id, feature);
+    OPTIONAL_FEATURES.push(feature);
+  });
+
+  const getFeature = (id) => featuresById.get(id) || null;
+
+  const getFeatureScope = (id) => {
+    const feature = getFeature(id);
+    return feature ? FEATURE_SCOPES[feature.featureScope] : null;
   };
 
   const readFeatureStore = () => {
@@ -301,16 +311,24 @@
   };
 
   const refreshFeature = (id) => {
+    const feature = getFeature(id);
     const scope = getFeatureScope(id);
-    if (!scope || scope.storage === 'none') return;
-    const feature = OPTIONAL_FEATURES[id];
+    if (!feature || !scope || scope.storage === 'none') return;
     const on = getFeatureState(id);
     if (on && !activeFeatures.has(id)) {
-      feature.enable();
-      activeFeatures.add(id);
+      try {
+        feature.enable();
+        activeFeatures.add(id);
+      } catch (error) {
+        console.error(`[mgcmd] Feature "${id}" failed to enable.`, error);
+      }
     } else if (!on && activeFeatures.has(id)) {
-      feature.disable();
-      activeFeatures.delete(id);
+      try {
+        feature.disable();
+        activeFeatures.delete(id);
+      } catch (error) {
+        console.error(`[mgcmd] Feature "${id}" failed to disable.`, error);
+      }
     }
   };
 
@@ -318,15 +336,15 @@
     const list = document.createElement('div');
     list.className = 'mgx-features-list';
 
-    getFeatureIds().forEach((id) => {
-      const feature = OPTIONAL_FEATURES[id];
+    OPTIONAL_FEATURES.forEach((feature) => {
+      const id = feature.id;
       const scope = getFeatureScope(id);
       if (!scope) return;
 
       const isButton = scope.control === 'button';
 
       const item = document.createElement(isButton ? 'div' : 'label');
-      item.className = 'mgx-feature';
+      item.className = isButton ? 'mgx-feature mgx-feature-action' : 'mgx-feature';
 
       if (!isButton) {
         const checkbox = document.createElement('input');
@@ -363,7 +381,11 @@
           event.preventDefault();
           event.stopPropagation();
           closeModal();
-          feature.action();
+          try {
+            feature.action();
+          } catch (error) {
+            console.error(`[mgcmd] Feature "${id}" action failed.`, error);
+          }
         });
         body.appendChild(actionBtn);
       }
@@ -396,9 +418,9 @@
   }
 
   const applyFeatures = () => {
-    getFeatureIds().forEach((id) => {
-      const scope = getFeatureScope(id);
-      if (scope && scope.storage !== 'none') refreshFeature(id);
+    OPTIONAL_FEATURES.forEach((feature) => {
+      const scope = getFeatureScope(feature.id);
+      if (scope && scope.storage !== 'none') refreshFeature(feature.id);
     });
   };
 

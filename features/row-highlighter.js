@@ -32,7 +32,8 @@
     });
   };
 
-  (window.MGX_FEATURES = window.MGX_FEATURES || {}).rowHighlighter = {
+  (window.MGX_FEATURES = window.MGX_FEATURES || []).push({
+    id: 'rowHighlighter',
     name: 'Row Highlighter',
     desc: 'Click a table row to cycle its background color: green = matched to the physical book, red = needs fixing, click again to reset.',
     featureScope: 'localStorageCheckbox',
@@ -45,5 +46,5 @@
       document.removeEventListener('click', rowHighlighterClick);
       clearRowHighlighterMarks();
     },
-  };
+  });
 })();
