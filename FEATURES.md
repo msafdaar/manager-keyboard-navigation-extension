@@ -44,8 +44,11 @@ the order shown in Settings.
 | `featureScope` | yes | `localStorageCheckbox`, `tabOnlyCheckbox`, or `button`. |
 | `enable()` | checkbox scopes | Attach listeners and start behavior. |
 | `disable()` | checkbox scopes | Remove listeners and undo behavior. |
+| `beforeEnable()` | optional | Runs when the user checks the feature. Return `false`, or a Promise of `false`, to keep it disabled. Does not run when features are restored on page load. |
 | `actionLabel` | button scope | Text on the action button. |
 | `action()` | button scope | Runs once when the button is clicked. |
+
+`beforeEnable()` is useful for asking the user for configuration before the feature starts. If it throws, the checkbox is reverted and the feature stays off.
 
 ## Scopes
 

@@ -251,6 +251,10 @@
       console.warn(`[mgcmd] Feature "${id}" must define enable() and disable().`);
       return null;
     }
+    if (feature.beforeEnable !== undefined && typeof feature.beforeEnable !== 'function') {
+      console.warn(`[mgcmd] Feature "${id}" beforeEnable must be a function when provided.`);
+      return null;
+    }
     return scope;
   };
 
@@ -350,7 +354,26 @@
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.checked = getFeatureState(id);
-        checkbox.addEventListener('change', () => setFeatureEnabled(id, checkbox.checked));
+        checkbox.addEventListener('change', async () => {
+          if (!checkbox.checked) {
+            setFeatureEnabled(id, false);
+            return;
+          }
+          checkbox.disabled = true;
+          try {
+            const allowed = feature.beforeEnable ? await feature.beforeEnable() : true;
+            if (!allowed) {
+              checkbox.checked = false;
+              return;
+            }
+            setFeatureEnabled(id, true);
+          } catch (error) {
+            console.error(`[mgcmd] Feature "${id}" beforeEnable failed.`, error);
+            checkbox.checked = false;
+          } finally {
+            checkbox.disabled = false;
+          }
+        });
         item.appendChild(checkbox);
       }
 

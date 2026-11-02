@@ -1,6 +1,35 @@
-<button onclick="ajaxPost(true)" class="btn btn-success" style="font-weight: bold;">Update</button>
+current date format 31-10-2026
 
+filled date input 
+<div class="form-group"><label>Date</label><div><div class="mx-datepicker"><div class="mx-input-wrapper"><input name="date" type="text" autocomplete="off" placeholder="" class="mx-input"><i class="mx-icon-calendar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1em" height="1em"><path d="M940.218182 107.054545h-209.454546V46.545455h-65.163636v60.50909H363.054545V46.545455H297.890909v60.50909H83.781818c-18.618182 0-32.581818 13.963636-32.581818 32.581819v805.236363c0 18.618182 13.963636 32.581818 32.581818 32.581818h861.090909c18.618182 0 32.581818-13.963636 32.581818-32.581818V139.636364c-4.654545-18.618182-18.618182-32.581818-37.236363-32.581819zM297.890909 172.218182V232.727273h65.163636V172.218182h307.2V232.727273h65.163637V172.218182h176.872727v204.8H116.363636V172.218182h181.527273zM116.363636 912.290909V442.181818h795.927273v470.109091H116.363636z"></path></svg></i></div></div></div></div>
 
-<button onclick="ajaxPost(true)" class="btn btn-primary" style="font-weight: bold;">Create</button>
+empty date input
+<div class="form-group"><label>Date</label><div><div class="mx-datepicker"><div class="mx-input-wrapper"><input name="date" type="text" autocomplete="off" placeholder="" class="mx-input"><i class="mx-icon-calendar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1em" height="1em"><path d="M940.218182 107.054545h-209.454546V46.545455h-65.163636v60.50909H363.054545V46.545455H297.890909v60.50909H83.781818c-18.618182 0-32.581818 13.963636-32.581818 32.581819v805.236363c0 18.618182 13.963636 32.581818 32.581818 32.581818h861.090909c18.618182 0 32.581818-13.963636 32.581818-32.581818V139.636364c-4.654545-18.618182-18.618182-32.581818-37.236363-32.581819zM297.890909 172.218182V232.727273h65.163636V172.218182h307.2V232.727273h65.163637V172.218182h176.872727v204.8H116.363636V172.218182h181.527273zM116.363636 912.290909V442.181818h795.927273v470.109091H116.363636z"></path></svg></i></div></div></div></div>
 
-<button onclick="ajaxPost(true)" class="btn btn-primary" style="font-weight: bold;">Create</button>
+console output of script
+{
+    "displayValue": "31-10-2026",
+    "placeholder": "",
+    "attrs": {
+        "name": "date",
+        "type": "text",
+        "autocomplete": "off",
+        "placeholder": "",
+        "class": "mx-input"
+    },
+    "format": "D-M-YYYY",
+    "innerFormat": "D-M-YYYY",
+    "valueType": "YYYY-M-D",
+    "editable": true,
+    "currentValue": "2026-10-30T19:00:00.000Z",
+    "innerValue": "2026-10-30T19:00:00.000Z",
+    "methods": {
+        "emitValue": "function",
+        "selectDate": "undefined",
+        "updateDate": "undefined",
+        "closePopup": "function"
+    }
+}
+
+How the component behaves when you type a valid date and press Enter/Tab: the picker closes
+Same question for clicking a date in the calendar: the picker closes

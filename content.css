@@ -299,6 +299,90 @@
   line-height: 1.4;
 }
 
+.mgx-date-format-dialog {
+  width: 360px;
+  max-width: 90vw;
+}
+
+.mgx-date-format-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mgx-date-format-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-weight: 600;
+}
+
+.mgx-date-format-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 7px 9px;
+  border: 1px solid var(--mgcmd-border);
+  border-radius: 4px;
+  background: var(--mgcmd-surface);
+  color: var(--mgcmd-text);
+  font: inherit;
+  outline: none;
+}
+
+.mgx-date-format-input:focus {
+  border-color: var(--mgcmd-accent);
+}
+
+.mgx-date-format-hint,
+.mgx-date-format-preview {
+  color: var(--mgcmd-text-muted);
+  font-size: 12px;
+}
+
+.mgx-date-format-error {
+  min-height: 16px;
+  color: var(--mgcmd-danger);
+  font-size: 12px;
+}
+
+.mgx-date-format-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.mgx-date-format-actions button {
+  padding: 5px 12px;
+  border: 1px solid var(--mgcmd-border);
+  border-radius: 4px;
+  background: var(--mgcmd-bg);
+  color: var(--mgcmd-text);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.mgx-date-format-actions button:hover:not(:disabled) {
+  background: var(--mgcmd-border-subtle);
+}
+
+.mgx-date-format-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mgx-date-format-actions .mgx-date-format-save {
+  border-color: var(--mgcmd-accent);
+  background: var(--mgcmd-accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.mgx-date-format-actions .mgx-date-format-save:hover:not(:disabled) {
+  border-color: var(--mgcmd-accent-hover);
+  background: var(--mgcmd-accent-hover);
+}
+
 tbody tr.mgx-green td {
   background-color: #d8f5dd !important;
   color: #13411b !important;

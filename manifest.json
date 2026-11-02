@@ -15,6 +15,7 @@
         "features/date-rows-generator.js",
         "features/autofill-unit-prices.js",
         "features/focus-on-action-button.js",
+        "features/date-input-helper.js",
         "content.js"
       ],
       "css": ["content.css"],
