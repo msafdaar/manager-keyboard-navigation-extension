@@ -470,9 +470,19 @@
     settingsToggle.id = 'mgcmd-settings-toggle';
     settingsToggle.type = 'button';
     settingsToggle.title = 'Settings';
-    settingsToggle.setAttribute('aria-label', 'Settings');
-    settingsToggle.innerHTML =
-      '<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9.4 1.5a1.6 1.6 0 0 0-2.8 0l-.3.52a1.04 1.04 0 0 1-1.46.4l-.54-.31a1.6 1.6 0 0 0-1.99 2.35l.4.47a1.04 1.04 0 0 1-.3 1.5l-.6.32a1.6 1.6 0 0 0 0 2.76l.6.32c.52.28.72.94.3 1.5l-.4.47a1.6 1.6 0 0 0 1.99 2.35l.54-.31c.54-.31 1.2-.12 1.46.4l.3.52a1.6 1.6 0 0 0 2.8 0l.3-.52a1.04 1.04 0 0 1 1.46-.4l.54.31a1.6 1.6 0 0 0 1.99-2.35l-.4-.47a1.04 1.04 0 0 1 .3-1.5l.6-.32a1.6 1.6 0 0 0 0-2.76l-.6-.32a1.04 1.04 0 0 1-.3-1.5l.4-.47a1.6 1.6 0 0 0-1.99-2.35l-.54.31a1.04 1.04 0 0 1-1.46-.4l-.3-.52ZM8 10.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z"/></svg>';
+    settingsToggle.setAttribute('aria-label', 'Open settings');
+
+    const settingsIcon = document.createElement('img');
+    settingsIcon.className = 'mgcmd-settings-icon';
+    settingsIcon.src = chrome.runtime.getURL('icons/icon16.png');
+    settingsIcon.srcset = `${chrome.runtime.getURL('icons/icon32.png')} 2x`;
+    settingsIcon.alt = '';
+
+    const settingsLabel = document.createElement('span');
+    settingsLabel.className = 'mgcmd-settings-label';
+    settingsLabel.textContent = 'Command Bar for Manager.io';
+
+    settingsToggle.append(settingsIcon, settingsLabel);
     settingsToggle.addEventListener('click', showSettingsModal);
 
     bar.appendChild(prompt);
