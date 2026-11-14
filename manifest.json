@@ -3,6 +3,12 @@
   "name": "Command Bar for Manager.io",
   "version": "1.0.0",
   "description": "Keyboard-first command bar for Manager.io: search any page and navigate via short aliases without touching the mouse.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
   "content_scripts": [
     {
       "matches": [
