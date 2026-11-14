@@ -21,6 +21,26 @@
   const getFocusableElements = (container) =>
     Array.from(container.querySelectorAll(FOCUSABLE_SELECTOR)).filter(isVisible);
 
+  const TEXT_INPUT_TYPES = new Set([
+    'text', 'search', 'url', 'tel', 'password', 'email'
+  ]);
+
+  const focusLikeKeyboard = (element) => {
+    element.focus();
+    try {
+      if (element instanceof HTMLTextAreaElement) {
+        element.select();
+      } else if (
+        element instanceof HTMLInputElement &&
+        TEXT_INPUT_TYPES.has(element.type)
+      ) {
+        element.select();
+      }
+    } catch {
+      // Ignore fields that do not support text selection
+    }
+  };
+
   const handleKeyDown = (event) => {
     if (event.key !== 'Tab') return;
     if (event.ctrlKey || event.altKey || event.metaKey) return;
@@ -43,7 +63,7 @@
       : (index + 1) % elements.length;
 
     event.preventDefault();
-    elements[nextIndex].focus();
+    focusLikeKeyboard(elements[nextIndex]);
   };
 
   (window.MGX_FEATURES = window.MGX_FEATURES || []).push({
