@@ -16,6 +16,7 @@
         "features/autofill-unit-prices.js",
         "features/focus-on-action-button.js",
         "features/date-input-helper.js",
+        "features/trap-tab-navigation.js",
         "content.js"
       ],
       "css": ["content.css"],

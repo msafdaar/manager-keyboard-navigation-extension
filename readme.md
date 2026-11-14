@@ -22,6 +22,7 @@ Optional Features: Enable or disable opt-in tools from the "Optional features" l
 * Row Highlighter: Click a table row to cycle its background color while comparing against physical books — green once it matches, red if it needs fixing, and a third click resets the row. Disabling the feature clears all current marks.
 * Keep This Page: All links open in new tabs and leaving or refreshing the page asks for confirmation, so anything on the page — highlighted rows, form entries, notes — survives an accidental click or refresh. Active for the current tab only: tick the checkbox to protect this tab; a fresh page load starts unprotected again.
 * Date input helper: Asks for your Manager.io date format when enabled. While a date field is focused, press Down to set today, Left to set the previous day, and Right to set the next day.
+* Trap Tab Navigation: Keeps Tab and Shift+Tab cycling through the elements inside the form area (`#nonBatchView`) instead of moving focus out of the form.
 
 
 ## Why It Does That
