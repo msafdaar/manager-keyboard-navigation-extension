@@ -422,8 +422,80 @@ tbody tr.mgx-red td {
   background-color: #7f1d1d !important;
 }
 
+#mgx-quickcalc-strip {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 2147483000;
+  display: flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 14px;
+  box-sizing: border-box;
+  background: var(--mgcmd-bg);
+  border-top: 1px solid var(--mgcmd-border);
+  color: var(--mgcmd-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+  user-select: none;
+}
+
+#mgx-quickcalc-strip[hidden] {
+  display: none !important;
+}
+
+.mgx-quickcalc-group {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.mgx-quickcalc-division {
+  margin-left: auto;
+  padding-left: 24px;
+}
+
+.mgx-quickcalc-strong {
+  font-weight: 700;
+}
+
+.mgx-quickcalc-sep {
+  margin: 0 8px;
+  color: var(--mgcmd-text-subtle);
+  font-weight: 400;
+}
+
+.mgx-quickcalc-pack-name {
+  margin-left: 4px;
+  font-weight: 400;
+}
+
+.mgx-quickcalc-pack-size {
+  margin-right: 4px;
+  font-size: 0.85em;
+  font-weight: 400;
+}
+
+.mgx-quickcalc-operator {
+  margin: 0 4px;
+  font-weight: 400;
+}
+
+.mgx-quickcalc-value {
+  margin-left: 4px;
+  font-weight: 400;
+}
+
 @media print {
-  #mgcmd-bar {
+  #mgcmd-bar,
+  #mgx-quickcalc-strip {
     display: none !important;
   }
 }

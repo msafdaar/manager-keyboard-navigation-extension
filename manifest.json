@@ -23,6 +23,7 @@
       ],
       "js": [
         "features/row-highlighter.js",
+        "features/quick-calculator.js",
         "features/keep-this-page.js",
         "features/date-rows-generator.js",
         "features/autofill-unit-prices.js",
