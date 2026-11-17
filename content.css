@@ -462,6 +462,15 @@ tbody tr.mgx-red td {
   padding-left: 24px;
 }
 
+.mgx-quickcalc-expression {
+  font-weight: 400;
+}
+
+.mgx-quickcalc-equals {
+  margin: 0 4px;
+  font-weight: 400;
+}
+
 .mgx-quickcalc-strong {
   font-weight: 700;
 }

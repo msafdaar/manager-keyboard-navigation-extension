@@ -39,25 +39,147 @@
 
   const parseNumber = (text) => {
     let raw = (text || '').trim();
-    if (!raw) return null;
-    if (!/^-?(?:\d{1,3}(?:[.,]\d{3})*(?:[.,]\d+)?|\d+(?:[.,]\d+)?)$/.test(raw)) {
-      return null;
-    }
+    if (!/^-?[\d,]+(?:\.[\d,]+)?$/.test(raw)) return null;
 
-    if (raw.includes(',') && raw.includes('.')) {
-      if (raw.lastIndexOf(',') > raw.lastIndexOf('.')) {
-        raw = raw.replace(/\./g, '').replace(',', '.');
-      } else {
-        raw = raw.replace(/,/g, '');
-      }
-    } else if (raw.includes(',')) {
-      raw = /^-?\d{1,3}(,\d{3})+$/.test(raw)
-        ? raw.replace(/,/g, '')
-        : raw.replace(',', '.');
-    }
+    raw = raw.replace(/,/g, '');
+    if (!/^-?\d+(?:\.\d+)?$/.test(raw)) return null;
 
     const value = Number(raw);
     return Number.isFinite(value) ? value : null;
+  };
+
+  const tokenizeExpression = (text) => {
+    const source = text.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-');
+    const tokens = [];
+    let index = 0;
+
+    while (index < source.length) {
+      const character = source[index];
+
+      if (/\s/.test(character)) {
+        index += 1;
+        continue;
+      }
+
+      if ('+-*/()'.includes(character)) {
+        tokens.push(character);
+        index += 1;
+        continue;
+      }
+
+      if (/[0-9.,]/.test(character)) {
+        let end = index + 1;
+        while (end < source.length && /[0-9.,]/.test(source[end])) end += 1;
+
+        const value = parseNumber(source.slice(index, end));
+        if (value === null) return null;
+
+        tokens.push(value);
+        index = end;
+        continue;
+      }
+
+      return null;
+    }
+
+    return tokens;
+  };
+
+  const evaluateExpression = (text) => {
+    const tokens = tokenizeExpression(text);
+    if (!tokens || tokens.length === 0) return null;
+
+    let index = 0;
+
+    const parseExpression = () => {
+      let value = parseTerm();
+      if (value === null) return null;
+
+      while (tokens[index] === '+' || tokens[index] === '-') {
+        const operator = tokens[index];
+        index += 1;
+        const right = parseTerm();
+        if (right === null) return null;
+        value = operator === '+' ? value + right : value - right;
+      }
+
+      return value;
+    };
+
+    const parseTerm = () => {
+      let value = parseUnary();
+      if (value === null) return null;
+
+      while (tokens[index] === '*' || tokens[index] === '/') {
+        const operator = tokens[index];
+        index += 1;
+        const right = parseUnary();
+        if (right === null) return null;
+        if (operator === '/' && right === 0) return null;
+        value = operator === '*' ? value * right : value / right;
+      }
+
+      return value;
+    };
+
+    const parseUnary = () => {
+      if (tokens[index] === '+') {
+        index += 1;
+        return parseUnary();
+      }
+      if (tokens[index] === '-') {
+        index += 1;
+        const value = parseUnary();
+        return value === null ? null : -value;
+      }
+      return parsePrimary();
+    };
+
+    const parsePrimary = () => {
+      const token = tokens[index];
+
+      if (typeof token === 'number') {
+        index += 1;
+        return token;
+      }
+
+      if (token !== '(') return null;
+
+      index += 1;
+      const value = parseExpression();
+      if (value === null || tokens[index] !== ')') return null;
+      index += 1;
+      return value;
+    };
+
+    const value = parseExpression();
+    if (value === null || index !== tokens.length || !Number.isFinite(value)) return null;
+    return value;
+  };
+
+  const parseSelectionValue = (text) => {
+    const raw = (text || '').trim();
+    if (!raw) return null;
+
+    const directValue = parseNumber(raw);
+    if (directValue !== null) {
+      return {
+        text: raw,
+        value: directValue,
+        isExpression: false,
+        expressionText: '',
+      };
+    }
+
+    const expressionValue = evaluateExpression(raw);
+    if (expressionValue === null) return null;
+
+    return {
+      text: raw,
+      value: expressionValue,
+      isExpression: true,
+      expressionText: raw,
+    };
   };
 
   const formatResult = (value) => {
@@ -116,11 +238,17 @@
     return items;
   };
 
-  const buildCalculationText = (selectedText, value) => {
-    const parts = [selectedText];
-    getCalculationItems(value).forEach(({ kind, label, result, packing }) => {
+  const buildCalculationText = (info) => {
+    const parts = [
+      info.isExpression
+        ? `${info.expressionText} = ${formatResult(info.value)}`
+        : info.text,
+    ];
+
+    getCalculationItems(info.value).forEach(({ kind, label, result, packing }) => {
       parts.push(kind === 'divide' && packing ? result : `${label}: ${result}`);
     });
+
     return parts.join(' · ');
   };
 
@@ -173,7 +301,7 @@
     container.append(labelElement, valueElement);
   };
 
-  const renderCalculation = (element, selectedText, value) => {
+  const renderCalculation = (element, info) => {
     element.replaceChildren();
 
     const multiplication = document.createElement('div');
@@ -182,12 +310,28 @@
     const division = document.createElement('div');
     division.className = 'mgx-quickcalc-group mgx-quickcalc-division';
 
-    const selected = document.createElement('span');
-    selected.className = 'mgx-quickcalc-strong';
-    selected.textContent = selectedText;
-    multiplication.appendChild(selected);
+    if (info.isExpression) {
+      const expression = document.createElement('span');
+      expression.className = 'mgx-quickcalc-expression';
+      expression.textContent = info.expressionText;
 
-    getCalculationItems(value).forEach((item) => {
+      const equals = document.createElement('span');
+      equals.className = 'mgx-quickcalc-equals';
+      equals.textContent = '=';
+
+      const result = document.createElement('span');
+      result.className = 'mgx-quickcalc-strong';
+      result.textContent = formatResult(info.value);
+
+      multiplication.append(expression, equals, result);
+    } else {
+      const selected = document.createElement('span');
+      selected.className = 'mgx-quickcalc-strong';
+      selected.textContent = info.text;
+      multiplication.appendChild(selected);
+    }
+
+    getCalculationItems(info.value).forEach((item) => {
       const target = item.kind === 'divide' ? division : multiplication;
       appendCalculationItem(target, item, target === multiplication || target.childElementCount > 0);
     });
@@ -217,10 +361,10 @@
     const element = ensureStrip();
     if (!element) return;
 
-    const text = buildCalculationText(info.text, info.value);
+    const text = buildCalculationText(info);
     if (calculationVisible && calculationText === text && !element.hidden) return;
 
-    renderCalculation(element, info.text, info.value);
+    renderCalculation(element, info);
     element.title = text;
     element.hidden = false;
     calculationVisible = true;
@@ -237,8 +381,8 @@
     if (!selection || selection.isCollapsed || selection.rangeCount === 0) return null;
 
     const text = selection.toString().trim();
-    const value = parseNumber(text);
-    if (value === null) return null;
+    const info = parseSelectionValue(text);
+    if (!info) return null;
 
     const range = selection.getRangeAt(0);
     const ancestor = range.commonAncestorContainer;
@@ -247,7 +391,7 @@
     if (element.closest(IGNORED_SELECTOR)) return null;
     if (element.closest(FORM_FIELD_SELECTOR)) return null;
 
-    return { text, value };
+    return info;
   };
 
   const getFormFieldSelectionInfo = (doc) => {
@@ -270,8 +414,7 @@
     }
 
     const text = field.value.slice(start, end).trim();
-    const value = parseNumber(text);
-    return value === null ? null : { text, value };
+    return parseSelectionValue(text);
   };
 
   const getSelectionInfo = () => {
@@ -436,7 +579,7 @@
   (window.MGX_FEATURES = window.MGX_FEATURES || []).push({
     id: 'quickCalculator',
     name: 'Quick Calculator',
-    desc: 'Select a number on the page or in a same-origin iframe to see its multiplied and divided values in a fixed strip at the bottom of the page.',
+    desc: 'Select a number or arithmetic expression on the page or in a same-origin iframe to see its multiplied and divided values in a fixed strip at the bottom of the page.',
     featureScope: 'localStorageCheckbox',
 
     enable() {
