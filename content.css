@@ -220,17 +220,57 @@
 .mgx-features-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .mgx-settings {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
+}
+
+.mgx-settings-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--mgcmd-border-subtle);
+}
+
+.mgx-settings-logo {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  display: block;
+  border-radius: 8px;
+}
+
+.mgx-settings-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.mgx-settings-brand-name {
+  color: var(--mgcmd-text);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.mgx-settings-brand-desc {
+  color: var(--mgcmd-text-muted);
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .mgx-settings-section {
   min-width: 0;
+}
+
+.mgx-settings-section + .mgx-settings-section {
+  padding-top: 12px;
+  border-top: 1px solid var(--mgcmd-border-subtle);
 }
 
 .mgx-settings-title {
@@ -258,7 +298,22 @@
 }
 
 .mgx-feature-action {
+  padding-top: 8px;
+  padding-bottom: 8px;
   cursor: default;
+}
+
+.mgx-feature-action .mgx-feature-body {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mgx-feature-action .mgx-feature-tabonly {
+  align-self: center;
+  margin-left: auto;
+  white-space: nowrap;
 }
 
 .mgx-feature-tabonly {

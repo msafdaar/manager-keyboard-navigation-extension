@@ -18,8 +18,8 @@ You only describe the feature and provide its behavior.
 3. Add `"features/my-feature.js"` to the `js` array in `manifest.json`, before `"content.js"`.
 4. Go to `chrome://extensions`, reload the extension, then open a Manager.io page.
 
-That's it. No edits to `content.js`, and feature order in the manifest controls
-the order shown in Settings.
+That's it. No edits to `content.js`. Settings groups features by `featureScope`,
+and manifest order controls the order within each group.
 
 ## Descriptor
 

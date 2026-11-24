@@ -336,11 +336,12 @@
     }
   };
 
-  const buildFeaturesList = () => {
+  const buildFeaturesList = (featureScope) => {
     const list = document.createElement('div');
     list.className = 'mgx-features-list';
 
     OPTIONAL_FEATURES.forEach((feature) => {
+      if (featureScope && feature.featureScope !== featureScope) return;
       const id = feature.id;
       const scope = getFeatureScope(id);
       if (!scope) return;
@@ -430,11 +431,42 @@
     return section;
   };
 
+  const buildSettingsHeader = () => {
+    const header = document.createElement('div');
+    header.className = 'mgx-settings-header';
+
+    const manifest = chrome.runtime.getManifest();
+
+    const logo = document.createElement('img');
+    logo.className = 'mgx-settings-logo';
+    logo.src = chrome.runtime.getURL('icons/icon32.png');
+    logo.srcset = `${chrome.runtime.getURL('icons/icon48.png')} 2x`;
+    logo.alt = '';
+
+    const text = document.createElement('div');
+    text.className = 'mgx-settings-header-text';
+
+    const name = document.createElement('div');
+    name.className = 'mgx-settings-brand-name';
+    name.textContent = manifest.name;
+
+    const desc = document.createElement('div');
+    desc.className = 'mgx-settings-brand-desc';
+    desc.textContent = manifest.description;
+
+    text.append(name, desc);
+    header.append(logo, text);
+    return header;
+  };
+
   function showSettingsModal() {
     openModal('Settings', () => {
       const container = document.createElement('div');
       container.className = 'mgx-settings';
-      container.appendChild(buildSettingsSection('Optional features', buildFeaturesList()));
+      container.appendChild(buildSettingsHeader());
+      container.appendChild(buildSettingsSection('Quick actions', buildFeaturesList('button')));
+      container.appendChild(buildSettingsSection('This tab only', buildFeaturesList('tabOnlyCheckbox')));
+      container.appendChild(buildSettingsSection('Saved features', buildFeaturesList('localStorageCheckbox')));
       container.appendChild(buildSettingsSection('Navigation aliases', buildAliasTable()));
       return container;
     });
