@@ -422,6 +422,85 @@ tbody tr.mgx-red td {
   background-color: #7f1d1d !important;
 }
 
+tbody tr.mgx-rowaction-clone > td,
+tbody tr.mgx-rowaction-delete > td {
+  position: relative;
+}
+
+tbody tr.mgx-rowaction-clone > td::after,
+tbody tr.mgx-rowaction-delete > td::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+tbody tr.mgx-rowaction-clone > td::after {
+  animation: mgx-rowaction-clone 600ms ease-out forwards;
+}
+
+tbody tr.mgx-rowaction-delete > td {
+  animation: mgx-rowaction-delete-row 150ms ease-in forwards;
+}
+
+tbody tr.mgx-rowaction-delete > td::after {
+  animation: mgx-rowaction-delete 150ms ease-in forwards;
+}
+
+@keyframes mgx-rowaction-clone {
+  0%, 55% {
+    background-color: rgba(22, 163, 74, 0.3);
+    opacity: 1;
+  }
+
+  100% {
+    background-color: rgba(22, 163, 74, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes mgx-rowaction-delete-row {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0.35;
+  }
+}
+
+@keyframes mgx-rowaction-delete {
+  from {
+    background-color: rgba(220, 38, 38, 0.12);
+    opacity: 1;
+  }
+
+  to {
+    background-color: rgba(220, 38, 38, 0.5);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  tbody tr.mgx-rowaction-clone > td::after {
+    animation: none;
+    background-color: rgba(22, 163, 74, 0.3);
+    opacity: 1;
+  }
+
+  tbody tr.mgx-rowaction-delete > td {
+    animation: none;
+  }
+
+  tbody tr.mgx-rowaction-delete > td::after {
+    animation: none;
+    background-color: rgba(220, 38, 38, 0.35);
+    opacity: 1;
+  }
+}
+
 #mgx-quickcalc-strip {
   position: fixed;
   right: 0;

@@ -24,6 +24,7 @@ Optional Features: Enable or disable opt-in tools from the "Optional features" l
 * Keep This Page: All links open in new tabs and leaving or refreshing the page asks for confirmation, so anything on the page — highlighted rows, form entries, notes — survives an accidental click or refresh. Active for the current tab only: tick the checkbox to protect this tab; a fresh page load starts unprotected again.
 * Date input helper: Asks for your Manager.io date format when enabled. While a date field is focused, press Down to set today, Left to set the previous day, and Right to set the next day.
 * Trap Tab Navigation: Keeps Tab and Shift+Tab cycling through the elements inside the form area (`#nonBatchView`) instead of moving focus out of the form.
+* Clone / Delete Row: While focus is inside a supported form row, press Alt+C to clone it or Alt+X to remove it. Cloned rows flash green, deleted rows flash red briefly before removal, and rows without both the clone and delete buttons are ignored.
 
 
 ## Why It Does That

@@ -23,6 +23,7 @@
       ],
       "js": [
         "features/row-highlighter.js",
+        "features/row-clone-delete.js",
         "features/quick-calculator.js",
         "features/keep-this-page.js",
         "features/date-rows-generator.js",
