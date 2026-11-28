@@ -279,12 +279,36 @@
     return feature ? FEATURE_SCOPES[feature.featureScope] : null;
   };
 
+  let featureStoreWarningShown = false;
+
+  const warnFeatureStore = (error) => {
+    if (featureStoreWarningShown) return;
+    featureStoreWarningShown = true;
+    console.warn(`[mgcmd] Ignoring invalid ${FEATURES_KEY} data.`, error);
+  };
+
   const readFeatureStore = () => {
+    let stored = null;
     try {
-      return JSON.parse(localStorage.getItem(FEATURES_KEY) || '{}');
-    } catch {
+      stored = JSON.parse(localStorage.getItem(FEATURES_KEY) || '{}');
+    } catch (error) {
+      warnFeatureStore(error);
       return {};
     }
+
+    if (!stored || typeof stored !== 'object' || Array.isArray(stored)) {
+      warnFeatureStore();
+      return {};
+    }
+
+    const clean = {};
+    OPTIONAL_FEATURES.forEach((feature) => {
+      const scope = FEATURE_SCOPES[feature.featureScope];
+      if (scope && scope.storage === 'local' && stored[feature.id] === true) {
+        clean[feature.id] = true;
+      }
+    });
+    return clean;
   };
 
   const getFeatureState = (id) => {
@@ -297,21 +321,31 @@
 
   const setFeatureEnabled = (id, enabled) => {
     const scope = getFeatureScope(id);
-    if (!scope || scope.storage === 'none') return;
+    if (!scope || scope.storage === 'none') return false;
+
     if (scope.storage === 'tab') {
       if (enabled) tabActiveFeatures.add(id);
       else tabActiveFeatures.delete(id);
-    } else {
-      try {
-        const data = readFeatureStore();
-        if (enabled) data[id] = true;
-        else delete data[id];
-        localStorage.setItem(FEATURES_KEY, JSON.stringify(data));
-      } catch {
-        // Ignore storage errors
-      }
+      refreshFeature(id);
+      return true;
     }
+
+    let saved = false;
+    try {
+      const data = readFeatureStore();
+      if (enabled) data[id] = true;
+      else delete data[id];
+      localStorage.setItem(FEATURES_KEY, JSON.stringify(data));
+      saved = Boolean(readFeatureStore()[id]) === enabled;
+      if (!saved) {
+        console.error(`[mgcmd] Feature "${id}" could not be saved to localStorage.`);
+      }
+    } catch (error) {
+      console.error(`[mgcmd] Failed to save feature "${id}".`, error);
+    }
+
     refreshFeature(id);
+    return saved;
   };
 
   const refreshFeature = (id) => {
@@ -354,25 +388,28 @@
       if (!isButton) {
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
+        checkbox.dataset.featureId = id;
         checkbox.checked = getFeatureState(id);
         checkbox.addEventListener('change', async () => {
           if (!checkbox.checked) {
             setFeatureEnabled(id, false);
+            checkbox.checked = getFeatureState(id);
             return;
           }
           checkbox.disabled = true;
           try {
             const allowed = feature.beforeEnable ? await feature.beforeEnable() : true;
             if (!allowed) {
-              checkbox.checked = false;
+              setFeatureEnabled(id, false);
               return;
             }
             setFeatureEnabled(id, true);
           } catch (error) {
             console.error(`[mgcmd] Feature "${id}" beforeEnable failed.`, error);
-            checkbox.checked = false;
+            setFeatureEnabled(id, false);
           } finally {
             checkbox.disabled = false;
+            if (checkbox.isConnected) checkbox.checked = getFeatureState(id);
           }
         });
         item.appendChild(checkbox);
@@ -418,6 +455,13 @@
       list.appendChild(item);
     });
     return list;
+  };
+
+  const syncFeatureCheckboxes = () => {
+    document.querySelectorAll('.mgx-feature input[type="checkbox"][data-feature-id]').forEach((checkbox) => {
+      if (checkbox.disabled) return;
+      checkbox.checked = getFeatureState(checkbox.dataset.featureId);
+    });
   };
 
   const buildSettingsSection = (titleText, content) => {
@@ -478,6 +522,15 @@
       if (scope && scope.storage !== 'none') refreshFeature(feature.id);
     });
   };
+
+  const handleFeatureStorage = (event) => {
+    if (event.storageArea !== localStorage) return;
+    if (event.key !== FEATURES_KEY && event.key !== null) return;
+    applyFeatures();
+    syncFeatureCheckboxes();
+  };
+
+  window.addEventListener('storage', handleFeatureStorage);
 
   const createBar = () => {
     const bar = document.createElement('div');
